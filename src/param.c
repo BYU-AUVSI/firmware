@@ -1,7 +1,10 @@
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 
+#include <breezystm32/breezystm32.h>
+
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "flash.h"
 #include "mavlink.h"

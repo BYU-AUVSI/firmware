@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 // type definitions
@@ -25,3 +29,8 @@ typedef enum
 void mavlink_stream(uint64_t time_us);
 void mavlink_stream_set_rate(mavlink_stream_id_t stream_id, uint32_t rate);
 void mavlink_stream_set_period(mavlink_stream_id_t stream_id, uint32_t period_us);
+
+
+#ifdef __cplusplus
+}
+#endif

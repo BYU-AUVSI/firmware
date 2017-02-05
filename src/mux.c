@@ -1,5 +1,7 @@
 #include <stdbool.h>
 
+#include <breezystm32/breezystm32.h>
+
 #include "mavlink_util.h"
 
 #include "rc.h"

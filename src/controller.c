@@ -21,7 +21,7 @@ extern "C" {
 #include "mavlink_util.h"
 
 
-void init_pid(pid_t* pid, param_id_t kp_param_id, param_id_t ki_param_id, param_id_t kd_param_id, float *current_x, float *current_xdot, float *commanded_x, float *output, float max, float min)
+void init_pid(pid_controller_t* pid, param_id_t kp_param_id, param_id_t ki_param_id, param_id_t kd_param_id, float *current_x, float *current_xdot, float *commanded_x, float *output, float max, float min)
 {
   pid->kp_param_id = kp_param_id;
   pid->ki_param_id = ki_param_id;
@@ -40,7 +40,7 @@ void init_pid(pid_t* pid, param_id_t kp_param_id, param_id_t ki_param_id, param_
 }
 
 
-void run_pid(pid_t *pid, float dt)
+void run_pid(pid_controller_t *pid, float dt)
 {
   if(dt > 0.010 || _armed_state == DISARMED)
   {
@@ -220,19 +220,4 @@ void run_controller()
 //    run_pid(&pid_altitude);
 //  else // PASSTHROUGH
     _command.F = _combined_control.F.value;
-
-  static uint32_t counter = 0;
-  if(counter > 100)
-  {
-    mavlink_send_named_command_struct("RC", _rc_control);
-    mavlink_send_named_command_struct("offboard", _offboard_control);
-    mavlink_send_named_command_struct("combined", _combined_control);
-//    mavlink_send_named_value_float("command_F", _command.F);
-//    mavlink_send_named_value_float("command_x", _command.x);
-//    mavlink_send_named_value_float("command_y", _command.y);
-//    mavlink_send_named_value_float("command_z", _command.z);
-//    mavlink_send_named_value_float("yaw_int", pid_yaw_rate.integrator);
-    counter = 0;
-  }
-  counter++;
 }
