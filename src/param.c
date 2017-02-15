@@ -13,6 +13,7 @@
 
 #include "param.h"
 #include "mixer.h"
+
 //#include "rc.h" <-- I want to include this file so I can manually specify the RC type.  But I get errors if I do
 
 // global variable definitions
@@ -34,7 +35,7 @@ static void init_param_float(param_id_t id, char name[PARAMS_NAME_LENGTH], float
 }
 
 // function definitions
-void init_params(void)
+void init_param(void)
 {
   for(uint8_t i = 0; i < PARAMS_COUNT; i++)
   {
@@ -105,15 +106,15 @@ void set_param_defaults(void)
   init_param_float(PARAM_ROLL_ANGLE_TRIM, "ROLL_TRIM", 0.0f);  // Roll Angle Trim - See RC calibration | -1000.0 | 1000.0
   init_param_float(PARAM_MAX_ROLL_ANGLE, "MAX_ROLL_ANG", 0.786f);   // Maximum Roll Angle command accepted into PID controllers | 0.0 | 1000.0
 
-  init_param_float(PARAM_PID_PITCH_ANGLE_P, "PID_PITCH_ANG_P", 0.15f);  // Pitch Angle Proporitional Gain | 0.0 | 1000.0 
+  init_param_float(PARAM_PID_PITCH_ANGLE_P, "PID_PITCH_ANG_P", 0.15f);  // Pitch Angle Proporitional Gain | 0.0 | 1000.0
   init_param_float(PARAM_PID_PITCH_ANGLE_I, "PID_PITCH_ANG_I", 0.0f);  // Pitch Angle Integral Gain | 0.0 | 1000.0
-  init_param_float(PARAM_PID_PITCH_ANGLE_D, "PID_PITCH_ANG_D", 0.07f); // Pitch Angle Derivative Gain | 0.0 | 1000.0 
+  init_param_float(PARAM_PID_PITCH_ANGLE_D, "PID_PITCH_ANG_D", 0.07f); // Pitch Angle Derivative Gain | 0.0 | 1000.0
   init_param_float(PARAM_PITCH_ANGLE_TRIM, "PITCH_TRIM", 0.0f);  // Pitch Angle Trim - See RC calibration | -1000.0 | 1000.0
   init_param_float(PARAM_MAX_PITCH_ANGLE, "MAX_PITCH_ANG", 0.786);   // Maximum Pitch Angle command accepted into PID controllers | 0.0 | 1000.0
 
-  init_param_float(PARAM_PID_ALT_P, "PID_ALT_P", 0.0f); // Altitude Proporitional Gain | 0.0 | 1000.0 
-  init_param_float(PARAM_PID_ALT_I, "PID_ALT_I", 0.0f); // Altitude Integral Gain | 0.0 | 1000.0 
-  init_param_float(PARAM_PID_ALT_D, "PID_ALT_D", 0.0f); // Altitude Derivative Gain | 0.0 | 1000.0 
+  init_param_float(PARAM_PID_ALT_P, "PID_ALT_P", 0.0f); // Altitude Proporitional Gain | 0.0 | 1000.0
+  init_param_float(PARAM_PID_ALT_I, "PID_ALT_I", 0.0f); // Altitude Integral Gain | 0.0 | 1000.0
+  init_param_float(PARAM_PID_ALT_D, "PID_ALT_D", 0.0f); // Altitude Derivative Gain | 0.0 | 1000.0
   init_param_float(PARAM_HOVER_THROTTLE, "HOVER_THR", 0.5); // Hover Throttle - See RC calibration | 0.0 | 1.0
 
   init_param_float(PARAM_PID_TAU, "PID_TAU", 0.05f); // Dirty Derivative time constant - See controller documentation | 0.0 | 1.0
@@ -152,7 +153,7 @@ void set_param_defaults(void)
   /*** RC CONFIGURATION ***/
   /************************/
   init_param_int(PARAM_RC_TYPE, "RC_TYPE",1); // Type of RC input 0 - Parallel PWM (PWM), 1 - Pulse-Position Modulation (PPM) | 0 | 1
-  init_param_int(PARAM_RC_X_CHANNEL, "RC_X_CHN", 0); // RC input channel mapped to x-axis commands [0 - indexed] | 0 | 3 
+  init_param_int(PARAM_RC_X_CHANNEL, "RC_X_CHN", 0); // RC input channel mapped to x-axis commands [0 - indexed] | 0 | 3
   init_param_int(PARAM_RC_Y_CHANNEL, "RC_Y_CHN", 1); // RC input channel mapped to y-axis commands [0 - indexed] | 0 | 3
   init_param_int(PARAM_RC_Z_CHANNEL, "RC_Z_CHN", 3); // RC input channel mapped to z-axis commands [0 - indexed] | 0 | 3
   init_param_int(PARAM_RC_F_CHANNEL, "RC_F_CHN", 2); // RC input channel mapped to F-axis commands [0 - indexed] | 0 | 3

@@ -68,15 +68,15 @@ void run_pid(pid_controller_t *pid, float dt)
     // calculate D term (use dirty derivative if we don't have access to a measurement of the derivative)
     // The dirty derivative is a sort of low-pass filtered version of the derivative.
     // (Be sure to de-reference pointers)
-    if(pid->current_xdot == NULL && dt > 0.0f)
+    if(pid->current_xdot)
+    {
+        d_term = get_param_float(pid->kd_param_id) * (*pid->current_xdot);
+    }
+    else if(dt > 0.0f)
     {
       pid->differentiator = (2.0f*pid->tau-dt)/(2.0f*pid->tau+dt)*pid->differentiator + 2.0f/(2.0f*pid->tau+dt)*((*pid->current_x) - pid->prev_x);
       pid->prev_x = *pid->current_x;
       d_term = get_param_float(pid->kd_param_id)*pid->differentiator;
-    }
-    else
-    {
-      d_term = get_param_float(pid->kd_param_id) * (*pid->current_xdot);
     }
   }
 
@@ -132,27 +132,27 @@ void init_controller()
            get_param_int(PARAM_MAX_COMMAND)/2.0f,
            -1.0f*get_param_int(PARAM_MAX_COMMAND)/2.0f);
 
-  init_pid(&pid_roll_rate,
-           PARAM_PID_ROLL_RATE_P,
-           PARAM_PID_ROLL_RATE_I,
-           PARAM_PID_ROLL_RATE_D,
-           &_current_state.omega.x,
-           NULL,
-           &_combined_control.x.value,
-           &_command.x,
-           get_param_int(PARAM_MAX_COMMAND)/2.0f,
-           -1.0f*get_param_int(PARAM_MAX_COMMAND)/2.0f);
+//  init_pid(&pid_roll_rate,
+//           PARAM_PID_ROLL_RATE_P,
+//           PARAM_PID_ROLL_RATE_I,
+//           PARAM_PID_ROLL_RATE_D,
+//           &_current_state.omega.x,
+//           NULL,
+//           &_combined_control.x.value,
+//           &_command.x,
+//           get_param_int(PARAM_MAX_COMMAND)/2.0f,
+//           -1.0f*get_param_int(PARAM_MAX_COMMAND)/2.0f);
 
-  init_pid(&pid_pitch_rate,
-           PARAM_PID_PITCH_RATE_P,
-           PARAM_PID_PITCH_RATE_I,
-           PARAM_PID_PITCH_RATE_D,
-           &_current_state.omega.y,
-           NULL,
-           &_combined_control.y.value,
-           &_command.y,
-           get_param_int(PARAM_MAX_COMMAND)/2.0f,
-           -1.0f*get_param_int(PARAM_MAX_COMMAND)/2.0f);
+//  init_pid(&pid_pitch_rate,
+//           PARAM_PID_PITCH_RATE_P,
+//           PARAM_PID_PITCH_RATE_I,
+//           PARAM_PID_PITCH_RATE_D,
+//           &_current_state.omega.y,
+//           NULL,
+//           &_combined_control.y.value,
+//           &_command.y,
+//           get_param_int(PARAM_MAX_COMMAND)/2.0f,
+//           -1.0f*get_param_int(PARAM_MAX_COMMAND)/2.0f);
 
   init_pid(&pid_yaw_rate,
            PARAM_PID_YAW_RATE_P,
@@ -165,16 +165,16 @@ void init_controller()
            get_param_int(PARAM_MAX_COMMAND)/2.0f,
            -1.0f*get_param_int(PARAM_MAX_COMMAND)/2.0f);
 
-  init_pid(&pid_altitude,
-           PARAM_PID_ALT_P,
-           PARAM_PID_ALT_I,
-           PARAM_PID_ALT_D,
-           &_current_state.altitude,
-           NULL,
-           &_combined_control.F.value,
-           &_command.F,
-           get_param_int(PARAM_MAX_COMMAND),
-           0.0f);
+//  init_pid(&pid_altitude,
+//           PARAM_PID_ALT_P,
+//           PARAM_PID_ALT_I,
+//           PARAM_PID_ALT_D,
+//           &_current_state.altitude,
+//           NULL,
+//           &_combined_control.F.value,
+//           &_command.F,
+//           get_param_int(PARAM_MAX_COMMAND),
+//           0.0f);
 }
 
 
@@ -194,26 +194,26 @@ void run_controller()
   prev_time = now;
 
   // ROLL
-  if(_combined_control.x.type == RATE)
-    run_pid(&pid_roll_rate, dt);
-  else if(_combined_control.x.type == ANGLE)
+//  if(_combined_control.x.type == RATE)
+//    run_pid(&pid_roll_rate, dt);
+  if(_combined_control.x.type == ANGLE)
     run_pid(&pid_roll, dt);
-  else // PASSTHROUGH
-    _command.x = _combined_control.x.value;
+//  else
+//    _command.x = _combined_control.x.value;
 
   // PITCH
-  if(_combined_control.y.type == RATE)
-    run_pid(&pid_pitch_rate, dt);
-  else if(_combined_control.y.type == ANGLE)
+//  if(_combined_control.y.type == RATE)
+//    run_pid(&pid_pitch_rate, dt);
+  if(_combined_control.y.type == ANGLE)
     run_pid(&pid_pitch, dt);
-  else // PASSTHROUGH
-    _command.y = _combined_control.y.value;
+//  else
+//    _command.y = _combined_control.y.value;
 
   // YAW
   if(_combined_control.z.type == RATE)
     run_pid(&pid_yaw_rate, dt);
-  else// PASSTHROUGH
-    _command.z = _combined_control.z.value;
+//  else
+//    _command.z = _combined_control.z.value;
 
   // THROTTLE
 //  if(_combined_control.F.type == ALTITUDE)
