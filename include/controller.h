@@ -32,11 +32,11 @@ typedef struct
 } pid_controller_t;
 
 pid_controller_t pid_roll;
-pid_controller_t pid_roll_rate;
+//pid_controller_t pid_roll_rate;
 pid_controller_t pid_pitch;
-pid_controller_t pid_pitch_rate;
+//pid_controller_t pid_pitch_rate;
 pid_controller_t pid_yaw_rate;
-pid_controller_t pid_altitude;
+//pid_controller_t pid_altitude;
 
 void init_pid(pid_controller_t* pid, param_id_t kp_param_id, param_id_t ki_param_id, param_id_t kd_param_id, float* current_x, float* current_xdot, float* commanded_x, float* output, float max, float min);
 void run_pid(pid_controller_t* pid, float dt);

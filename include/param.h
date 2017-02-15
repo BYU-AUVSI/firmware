@@ -1,7 +1,8 @@
-#pragma once
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -193,7 +194,7 @@ extern params_t _params;
 /**
  * @brief Initialize parameter values
  */
-void init_params(void);
+void init_param(void);
 
 /**
  * @brief Set all parameters to default values

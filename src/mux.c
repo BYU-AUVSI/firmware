@@ -11,7 +11,11 @@
 
 control_t _rc_control;
 control_t _offboard_control;
-control_t _combined_control;
+control_t _combined_control = {
+  {true, ANGLE, 0.0},
+  {true, ANGLE, 0.0},
+  {true, RATE, 0.0},
+  {true, THROTTLE, 0.0}};
 
 control_t _failsafe_control = {
   {true, ANGLE, 0.0},
