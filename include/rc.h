@@ -5,6 +5,7 @@
 #include <stdbool.h>
 
 #include "mux.h"
+#include "param.h"
 
 typedef struct
 {
@@ -14,12 +15,12 @@ typedef struct
 
 typedef struct
 {
-    int32_t channel_param;
-    int32_t max_angle_param;
-    int32_t max_rate_param;
-    int32_t center_param;
-    int32_t bottom_param;
-    int32_t range_param;
+    param_id_t channel_param;
+    param_id_t max_angle_param;
+    param_id_t max_rate_param;
+    param_id_t center_param;
+    param_id_t bottom_param;
+    param_id_t range_param;
     control_channel_t* control_channel_ptr;
 } rc_channel_t;
 

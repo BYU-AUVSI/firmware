@@ -20,18 +20,18 @@ static rc_channel_t channels[4];
 static void init_switches()
 {
     // Make sure that parameters for switch channels are correct
-    uint32_t channel_parameters[3] = {PARAM_RC_ATTITUDE_OVERRIDE_CHANNEL,
+    param_id_t channel_parameters[3] = {PARAM_RC_ATTITUDE_OVERRIDE_CHANNEL,
                                       PARAM_RC_THROTTLE_OVERRIDE_CHANNEL,
                                       PARAM_RC_ATT_CONTROL_TYPE_CHANNEL};
 
     // Make sure that channel numbers are specified correctly (between 4 and 8)
     for (uint8_t i = 0; i < 3; i++)
     {
-        uint8_t channel_index = get_param_int(channel_parameters[i]);
+        uint32_t channel_index = static_cast<uint32_t>(get_param_int(channel_parameters[i]));
         if (channel_index > 8 || channel_index < 4)
         {
             mavlink_log_error("incorrect channel specification for");
-            mavlink_log_error("switch parameter %s", get_param_name(channel_parameters[i]));
+//            mavlink_log_error("switch parameter s", get_param_name((param_id_t)channel_parameters[i]));
             mavlink_log_error("setting to channel 8");
             set_param_int(channel_parameters[i], 8);
         }
@@ -71,7 +71,7 @@ void init_rc()
     channels[RC_X].channel_param = PARAM_RC_X_CHANNEL;
     channels[RC_X].max_angle_param = PARAM_MAX_ROLL_ANGLE;
     channels[RC_X].max_rate_param = PARAM_MAX_ROLL_RATE;
-    channels[RC_X].bottom_param = 0;
+    channels[RC_X].bottom_param = PARAMS_COUNT;
     channels[RC_X].center_param = PARAM_RC_X_CENTER;
     channels[RC_X].range_param = PARAM_RC_X_RANGE;
     channels[RC_X].control_channel_ptr = &(_rc_control.x);
@@ -79,24 +79,24 @@ void init_rc()
     channels[RC_Y].channel_param = PARAM_RC_Y_CHANNEL;
     channels[RC_Y].max_angle_param = PARAM_MAX_PITCH_ANGLE;
     channels[RC_Y].max_rate_param = PARAM_MAX_PITCH_RATE;
-    channels[RC_Y].bottom_param = 0;
+    channels[RC_Y].bottom_param = PARAMS_COUNT;
     channels[RC_Y].center_param = PARAM_RC_Y_CENTER;
     channels[RC_Y].range_param = PARAM_RC_Y_RANGE;
     channels[RC_Y].control_channel_ptr = &(_rc_control.y);
 
     channels[RC_Z].channel_param = PARAM_RC_Z_CHANNEL;
-    channels[RC_Z].max_angle_param = 0;
+    channels[RC_Z].max_angle_param = PARAMS_COUNT;
     channels[RC_Z].max_rate_param = PARAM_MAX_YAW_RATE;
-    channels[RC_Z].bottom_param = 0;
+    channels[RC_Z].bottom_param = PARAMS_COUNT;
     channels[RC_Z].center_param = PARAM_RC_Z_CENTER;
     channels[RC_Z].range_param = PARAM_RC_Z_RANGE;
     channels[RC_Z].control_channel_ptr = &(_rc_control.z);
 
     channels[RC_F].channel_param = PARAM_RC_F_CHANNEL;
-    channels[RC_F].max_angle_param = 0;
+    channels[RC_F].max_angle_param = PARAMS_COUNT;
     channels[RC_F].max_rate_param = PARAM_MAX_ROLL_RATE;
     channels[RC_F].bottom_param = PARAM_RC_F_BOTTOM;
-    channels[RC_F].center_param = 0;
+    channels[RC_F].center_param = PARAMS_COUNT;
     channels[RC_F].range_param = PARAM_RC_F_RANGE;
     channels[RC_F].control_channel_ptr = &(_rc_control.F);
 }
@@ -278,7 +278,7 @@ bool receive_rc()
 
 void calibrate_rc()
 {
-    if (_armed_state & ARMED || _armed_state & FAILSAFE)
+    if (_armed_state == ARMED || _armed_state == DISARMED_FAILSAFE || _armed_state == ARMED_FAILSAFE)
     {
         mavlink_log_error("Cannot calibrate RC when FCU is armed or in failsafe", NULL);
     }

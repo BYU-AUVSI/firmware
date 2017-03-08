@@ -88,7 +88,7 @@ void rosflight_run()
   check_mode(clock_micros()); // 108 | 1 | 1
 
   // get RC, an internal timer runs this every 20 ms (50 Hz)
-  receive_rc(clock_micros()); // 42 | 2 | 1
+  receive_rc(); // 42 | 2 | 1
 
   // update commands (internal logic tells whether or not we should do anything or not)
   mux_inputs(); // 6 | 1 | 1

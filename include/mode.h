@@ -6,18 +6,12 @@ extern "C" {
 
 typedef enum
 {
-  DISARMED = 0x00,
-  ARMED = 0x01,
-  FAILSAFE = 0x2,
+  DISARMED,
+  ARMED,
+  DISARMED_FAILSAFE,
+  ARMED_FAILSAFE
 } armed_state_t;
 extern armed_state_t _armed_state;
-
-typedef enum
-{
-  INVALID_CONTROL_MODE,
-  INVALID_ARMED_STATE,
-} error_state_t;
-error_state_t _error_state;
 
 void init_mode(void);
 bool check_mode(uint64_t now);

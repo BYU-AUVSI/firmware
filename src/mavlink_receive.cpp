@@ -7,6 +7,7 @@
 #include "sensors.h"
 #include "rc.h"
 
+#include "mavlink.h"
 #include "mavlink_receive.h"
 #include "mavlink_log.h"
 
@@ -79,7 +80,9 @@ static void mavlink_handle_msg_rosflight_cmd(const mavlink_message_t *const msg)
 
   uint8_t response = (result) ? ROSFLIGHT_CMD_SUCCESS : ROSFLIGHT_CMD_FAILED;
 
-  mavlink_msg_rosflight_cmd_ack_send(MAVLINK_COMM_0, cmd.command, response);
+  mavlink_message_t ack_msg;
+  mavlink_msg_rosflight_cmd_ack_pack(get_param_int(PARAM_SYSTEM_ID), 0, &ack_msg, cmd.command, response);
+  send_message(ack_msg);
 
   if (reboot_flag || reboot_to_bootloader_flag)
   {
@@ -97,7 +100,9 @@ static void mavlink_handle_msg_timesync(const mavlink_message_t *const msg)
 
   if (tsync.tc1 == 0) // check that this is a request, not a response
   {
-    mavlink_msg_timesync_send(MAVLINK_COMM_0, (int64_t) now_us*1000, tsync.ts1);
+    mavlink_message_t msg;
+    mavlink_msg_timesync_pack(get_param_int(PARAM_SYSTEM_ID), 0, &msg, (int64_t) now_us*1000, tsync.ts1);
+    send_message(msg);
   }
 }
 

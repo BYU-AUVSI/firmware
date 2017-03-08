@@ -1,10 +1,12 @@
+extern "C"
+{
 #include <breezystm32.h>
-
 #include "flash.h"
+extern void SetSysClock(bool overclock);
+}
 
 #include "board.h"
 
-extern void SetSysClock(bool overclock);
 serialPort_t *Serial1;
 
 void init_board(void)

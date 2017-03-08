@@ -1,7 +1,3 @@
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -359,8 +355,3 @@ static void correct_mag(void)
   _mag.z = get_param_float(PARAM_MAG_A31_COMP)*mag_hard_x + get_param_float(PARAM_MAG_A32_COMP)*mag_hard_y +
            get_param_float(PARAM_MAG_A33_COMP)*mag_hard_z;
 }
-
-
-#ifdef __cplusplus
-}
-#endif

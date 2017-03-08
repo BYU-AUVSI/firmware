@@ -32,7 +32,7 @@ bool arm(void)
   else if (gyro_calibration_complete())
   {
     started_gyro_calibration = false;
-    _armed_state |= ARMED;
+    _armed_state = ARMED;
     led1_on();
     return true;
   }
@@ -41,7 +41,7 @@ bool arm(void)
 
 void disarm(void)
 {
-  _armed_state &= ~(ARMED);
+  _armed_state = DISARMED;
   led1_off();
 }
 
@@ -50,7 +50,7 @@ bool check_failsafe(void)
   if (pwm_lost())
   {
     // Set the FAILSAFE bit
-    _armed_state |= FAILSAFE;
+    _armed_state = (ARMED) ? ARMED_FAILSAFE : DISARMED_FAILSAFE;
     return true;
   }
 
@@ -60,7 +60,7 @@ bool check_failsafe(void)
     {
       if(pwm_read(i) < 900 || pwm_read(i) > 2100)
       {
-        _armed_state |= FAILSAFE;
+        _armed_state = (ARMED) ? ARMED_FAILSAFE : DISARMED_FAILSAFE;
 
         // blink LED
         static uint8_t count = 0;
@@ -76,7 +76,7 @@ bool check_failsafe(void)
 
     // we got a valid RC measurement for all channels and pwm is active
     // Clear the FAILSAFE bit
-    _armed_state &= ~(FAILSAFE);
+    _armed_state = (ARMED_FAILSAFE) ? ARMED : DISARMED;
     return false;
   }
 }

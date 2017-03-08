@@ -1,7 +1,3 @@
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -18,6 +14,13 @@ extern "C" {
 
 #include "mavlink_log.h"
 #include "mavlink_util.h"
+
+pid_t pid_roll;
+pid_t pid_roll_rate;
+pid_t pid_pitch;
+pid_t pid_pitch_rate;
+pid_t pid_yaw_rate;
+pid_t pid_altitude;
 
 
 void init_pid(pid_t *pid, param_id_t kp_param_id, param_id_t ki_param_id, param_id_t kd_param_id, float *current_x,
@@ -70,10 +73,10 @@ void run_pid(pid_t *pid, float dt)
     // (Be sure to de-reference pointers)
     if (pid->current_xdot == NULL && dt > 0.0f)
     {
-      pid->differentiator = (2.0f*pid->tau-dt)/(2.0f*pid->tau+dt)*pid->differentiator + 2.0f/(2.0f*pid->tau+dt)*((
-                              *pid->current_x) - pid->prev_x);
+      pid->differentiator = (2.0f*pid->tau-dt)/(2.0f*pid->tau+dt)*pid->differentiator
+                              + 2.0f/(2.0f*pid->tau+dt)*((*pid->current_x) - pid->prev_x);
       pid->prev_x = *pid->current_x;
-      d_term = get_param_float(pid->kd_param_id)*pid->differentiator;
+      d_term = get_param_float(pid->kd_param_id) * pid->differentiator;
     }
     else
     {
@@ -221,14 +224,4 @@ void run_controller()
 //    run_pid(&pid_altitude);
 //  else // PASSTHROUGH
   _command.F = _combined_control.F.value;
-
-  static uint32_t counter = 0;
-  if (counter > 100)
-  {
-    mavlink_send_named_command_struct("RC", _rc_control);
-    mavlink_send_named_command_struct("offboard", _offboard_control);
-    mavlink_send_named_command_struct("combined", _combined_control);
-    counter = 0;
-  }
-  counter++;
 }

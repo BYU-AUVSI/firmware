@@ -23,11 +23,13 @@ void init_mavlink(void)
   mavlink_log_warning("rebooting");
 }
 
-// implement for mavlink convenience functions
-inline void comm_send_ch(mavlink_channel_t chan, uint8_t ch)
+void send_message(const mavlink_message_t &msg)
 {
-  if (chan == MAVLINK_COMM_0)
+  uint8_t data[MAVLINK_MAX_PACKET_LEN];
+  uint16_t len = mavlink_msg_to_send_buffer(data, &msg);
+  for (int i = 0; i < len; i++)
   {
-    serial_write(ch);
+    serial_write(data[i]);
   }
 }
+

@@ -1,6 +1,3 @@
-#ifdef __cplusplus
-extern "C" {
-#endif
 #include <stdint.h>
 
 #include "board.h"
@@ -227,6 +224,3 @@ void mix_output()
     }
   }
 }
-#ifdef __cplusplus
-}
-#endif

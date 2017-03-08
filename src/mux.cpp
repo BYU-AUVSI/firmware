@@ -79,7 +79,7 @@ bool mux_inputs()
   }
   // otherwise combine the new commands
 
-  if (_armed_state & FAILSAFE)
+  if (_armed_state == DISARMED_FAILSAFE || _armed_state == ARMED_FAILSAFE)
   {
     _combined_control = _failsafe_control;
   }
