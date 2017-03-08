@@ -2,7 +2,7 @@
 extern "C" {
 #endif
 
-#include <turbotrig/turbotrig.h>
+#include <turbotrig.h>
 
 int16_t atan_lookup_table[1001] =
 {

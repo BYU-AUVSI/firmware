@@ -107,6 +107,19 @@ typedef enum
   PARAM_ACC_Y_TEMP_COMP,
   PARAM_ACC_Z_TEMP_COMP,
 
+  PARAM_MAG_A11_COMP,
+  PARAM_MAG_A12_COMP,
+  PARAM_MAG_A13_COMP,
+  PARAM_MAG_A21_COMP,
+  PARAM_MAG_A22_COMP,
+  PARAM_MAG_A23_COMP,
+  PARAM_MAG_A31_COMP,
+  PARAM_MAG_A32_COMP,
+  PARAM_MAG_A33_COMP,
+  PARAM_MAG_X_BIAS,
+  PARAM_MAG_Y_BIAS,
+  PARAM_MAG_Z_BIAS,
+
   /************************/
   /*** RC CONFIGURATION ***/
   /************************/
@@ -172,25 +185,8 @@ typedef enum
   PARAM_TYPE_INVALID
 } param_type_t;
 
-// type definitions
-typedef struct
-{
-  uint8_t version;
-  uint16_t size;
-  uint8_t magic_be;                       // magic number, should be 0xBE
-
-  int32_t values[PARAMS_COUNT];
-  char names[PARAMS_COUNT][PARAMS_NAME_LENGTH];
-  param_type_t types[PARAMS_COUNT];
-
-  uint8_t magic_ef;                       // magic number, should be 0xEF
-  uint8_t chk;                            // XOR checksum
-} params_t;
-
-// global variable declarations
-extern params_t _params;
-
 // function declarations
+
 /**
  * @brief Initialize parameter values
  */
@@ -245,7 +241,7 @@ float get_param_float(param_id_t id);
  * @param id The ID of the parameter
  * @return The name of the parameter
  */
-char * get_param_name(param_id_t id);
+char *get_param_name(param_id_t id);
 
 /**
  * @brief Get the type of a parameter

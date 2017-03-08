@@ -1,12 +1,12 @@
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 
-#include <breezystm32/breezystm32.h>
+#include <board.h>
 
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 
-#include "flash.h"
+#include "board.h"
 #include "mavlink.h"
 #include "mavlink_param.h"
 #include "mavlink_stream.h"
@@ -16,22 +16,51 @@
 
 //#include "rc.h" <-- I want to include this file so I can manually specify the RC type.  But I get errors if I do
 
+// type definitions
+typedef struct
+{
+  uint8_t version;
+  uint16_t size;
+  uint8_t magic_be;                       // magic number, should be 0xBE
+
+  int32_t values[PARAMS_COUNT];
+  char names[PARAMS_COUNT][PARAMS_NAME_LENGTH];
+  param_type_t types[PARAMS_COUNT];
+
+  uint8_t magic_ef;                       // magic number, should be 0xEF
+  uint8_t chk;                            // XOR checksum
+} params_t;
+
 // global variable definitions
-params_t _params;
+static params_t params;
+
+// local variable definitions
+static const uint8_t PARAM_CONF_VERSION = 76;
 
 // local function definitions
 static void init_param_int(param_id_t id, char name[PARAMS_NAME_LENGTH], int32_t value)
 {
-  memcpy(_params.names[id], name, PARAMS_NAME_LENGTH);
-  _params.values[id] = value;
-  _params.types[id] = PARAM_TYPE_INT32;
+  memcpy(params.names[id], name, PARAMS_NAME_LENGTH);
+  params.values[id] = value;
+  params.types[id] = PARAM_TYPE_INT32;
 }
 
 static void init_param_float(param_id_t id, char name[PARAMS_NAME_LENGTH], float value)
 {
-  memcpy(_params.names[id], name, PARAMS_NAME_LENGTH);
-  _params.values[id] = *((int32_t *) &value);
-  _params.types[id] = PARAM_TYPE_FLOAT;
+  memcpy(params.names[id], name, PARAMS_NAME_LENGTH);
+  params.values[id] = *((int32_t *) &value);
+  params.types[id] = PARAM_TYPE_FLOAT;
+}
+
+static uint8_t compute_checksum(void)
+{
+  uint8_t chk = 0;
+  const uint8_t * p;
+
+  for (p = (const uint8_t *)&params; p < ((const uint8_t *)&params + sizeof(params_t)); p++)
+    chk ^= *p;
+
+  return chk;
 }
 
 // function definitions
@@ -41,7 +70,7 @@ void init_param(void)
   {
     init_param_int(i, "DEFAULT", 0);
   }
-  initEEPROM();
+  memory_init();
   if (!read_params())
   {
     set_param_defaults();
@@ -149,9 +178,23 @@ void set_param_defaults(void)
   init_param_float(PARAM_ACC_Y_TEMP_COMP,  "ACC_Y_TEMP_COMP", 0.0f); // Linear y-axis temperature compensation constant | -2.0 | 2.0
   init_param_float(PARAM_ACC_Z_TEMP_COMP,  "ACC_Z_TEMP_COMP", 0.0f); // Linear z-axis temperature compensation constant | -2.0 | 2.0
 
+  init_param_float(PARAM_MAG_A11_COMP,  "MAG_A11_COMP", 1.0f); // Soft iron compensation constant | -999.0 | 999.0
+  init_param_float(PARAM_MAG_A12_COMP,  "MAG_A12_COMP", 0.0f); // Soft iron compensation constant | -999.0 | 999.0
+  init_param_float(PARAM_MAG_A13_COMP,  "MAG_A13_COMP", 0.0f); // Soft iron compensation constant | -999.0 | 999.0
+  init_param_float(PARAM_MAG_A21_COMP,  "MAG_A21_COMP", 0.0f); // Soft iron compensation constant | -999.0 | 999.0
+  init_param_float(PARAM_MAG_A22_COMP,  "MAG_A22_COMP", 1.0f); // Soft iron compensation constant | -999.0 | 999.0
+  init_param_float(PARAM_MAG_A23_COMP,  "MAG_A23_COMP", 0.0f); // Soft iron compensation constant | -999.0 | 999.0
+  init_param_float(PARAM_MAG_A31_COMP,  "MAG_A31_COMP", 0.0f); // Soft iron compensation constant | -999.0 | 999.0
+  init_param_float(PARAM_MAG_A32_COMP,  "MAG_A32_COMP", 0.0f); // Soft iron compensation constant | -999.0 | 999.0
+  init_param_float(PARAM_MAG_A33_COMP,  "MAG_A33_COMP", 1.0f); // Soft iron compensation constant | -999.0 | 999.0
+  init_param_float(PARAM_MAG_X_BIAS,  "MAG_X_BIAS", 0.0f); // Hard iron compensation constant | -999.0 | 999.0
+  init_param_float(PARAM_MAG_Y_BIAS,  "MAG_Y_BIAS", 0.0f); // Hard iron compensation constant | -999.0 | 999.0
+  init_param_float(PARAM_MAG_Z_BIAS,  "MAG_Z_BIAS", 0.0f); // Hard iron compensation constant | -999.0 | 999.0
+
   /************************/
   /*** RC CONFIGURATION ***/
   /************************/
+  init_param_int(PARAM_RC_TYPE, "RC_TYPE", 1); // Type of RC input 0 - Parallel PWM (PWM), 1 - Pulse-Position Modulation (PPM) | 0 | 1
   init_param_int(PARAM_RC_TYPE, "RC_TYPE",1); // Type of RC input 0 - Parallel PWM (PWM), 1 - Pulse-Position Modulation (PPM) | 0 | 1
   init_param_int(PARAM_RC_X_CHANNEL, "RC_X_CHN", 0); // RC input channel mapped to x-axis commands [0 - indexed] | 0 | 3
   init_param_int(PARAM_RC_Y_CHANNEL, "RC_Y_CHN", 1); // RC input channel mapped to y-axis commands [0 - indexed] | 0 | 3
@@ -160,7 +203,7 @@ void set_param_defaults(void)
   init_param_int(PARAM_RC_ATTITUDE_OVERRIDE_CHANNEL, "RC_ATT_OVRD_CHN", 4); // RC switch mapped to attitude override [0 -indexed] | 4 | 7
   init_param_int(PARAM_RC_THROTTLE_OVERRIDE_CHANNEL, "RC_THR_OVRD_CHN", 4); // RC switch hannel mapped to throttle override [0 -indexed] | 4 | 7
   init_param_int(PARAM_RC_ATT_CONTROL_TYPE_CHANNEL,  "RC_ATT_CTRL_CHN", 5); // RC switch channel mapped to attitude control type [0 -indexed] | 4 | 7
-  init_param_int(PARAM_RC_F_CONTROL_TYPE_CHANNEL,    "RC_F_CTRL_CHN", 7); // RC switch channel mapped to throttle control type override [0 -indexed] | 4 | 7
+  init_param_int(PARAM_RC_F_CONTROL_TYPE_CHANNEL,    "RC_F_CTRL_CHN",   7); // RC switch channel mapped to throttle control type override [0 -indexed] | 4 | 7
   init_param_int(PARAM_RC_NUM_CHANNELS, "RC_NUM_CHN", 6); // number of RC input channels | 1 | 8
 
   init_param_int(PARAM_RC_X_CENTER, "RC_X_CENTER", 1500); // RC calibration x-axis center (us) | 1000 | 2000
@@ -206,12 +249,32 @@ void set_param_defaults(void)
 
 bool read_params(void)
 {
-  return readEEPROM();
+  if (!memory_read(&params, sizeof(params_t)))
+    return false;
+
+  if (params.version != PARAM_CONF_VERSION)
+    return false;
+
+  if (params.size != sizeof(params_t) || params.magic_be != 0xBE || params.magic_ef != 0xEF)
+    return false;
+
+  if (compute_checksum() != 0)
+    return false;
+
+  return true;
 }
 
 bool write_params(void)
 {
-  return writeEEPROM(true);
+  params.version = PARAM_CONF_VERSION;
+  params.size = sizeof(params_t);
+  params.magic_be = 0xBE;
+  params.magic_ef = 0xEF;
+  params.chk = compute_checksum();
+
+  if (!memory_write(&params, sizeof(params_t)))
+    return false;
+  return true;
 }
 
 void param_change_callback(param_id_t id)
@@ -276,14 +339,14 @@ param_id_t lookup_param_id(const char name[PARAMS_NAME_LENGTH])
     for (uint8_t i = 0; i < PARAMS_NAME_LENGTH; i++)
     {
       // compare each character
-      if (name[i] != _params.names[id][i])
+      if (name[i] != params.names[id][i])
       {
         match = false;
         break;
       }
 
       // stop comparing if end of string is reached
-      if (_params.names[id][i] == '\0')
+      if (params.names[id][i] == '\0')
         break;
     }
 
@@ -296,29 +359,29 @@ param_id_t lookup_param_id(const char name[PARAMS_NAME_LENGTH])
 
 int get_param_int(param_id_t id)
 {
-  return _params.values[id];
+  return params.values[id];
 }
 
 float get_param_float(param_id_t id)
 {
-  return *(float *) &_params.values[id];
+  return *(float *) &params.values[id];
 }
 
 char *get_param_name(param_id_t id)
 {
-  return _params.names[id];
+  return params.names[id];
 }
 
 param_type_t get_param_type(param_id_t id)
 {
-  return _params.types[id];
+  return params.types[id];
 }
 
 bool set_param_int(param_id_t id, int32_t value)
 {
-  if (id < PARAMS_COUNT && value != _params.values[id])
+  if (id < PARAMS_COUNT && value != params.values[id])
   {
-    _params.values[id] = value;
+    params.values[id] = value;
     param_change_callback(id);
     mavlink_send_param(id);
     return true;

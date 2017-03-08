@@ -3,7 +3,7 @@
 extern "C" {
 #endif
 
-#include <turbotrig/turbovec.h>
+#include <turbovec.h>
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -11,17 +11,10 @@ extern "C" {
 typedef struct
 {
   quaternion_t q;
-  vector_t euler;
   vector_t omega;
-
-//  float p;
-//  float q;
-//  float r;
-
-//  float phi;
-//  float theta;
-//  float psi;
-
+  float roll;
+  float pitch;
+  float yaw;
   float altitude;
   uint64_t now_us;
 
