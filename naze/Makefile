@@ -168,21 +168,21 @@ DEBUG_FLAGS = -ggdb3
 OPTIMIZE = -Og
 else
 OPTIMIZE = -Os
-LTO_FLAGS = -flto -fuse-linker-plugin $(OPTIMIZE)
 endif
 
 
 #################################
 # Flags
 #################################
-MCFLAGS=-mcpu=cortex-m3 -mthumb
+LTO_FLAGS = -flto -fuse-linker-plugin $(OPTIMIZE)
+MCFLAGS=-mcpu=cortex-m3 -mthumb -ffunction-sections -fdata-sections -fno-rtti -fno-exceptions -flto
 OPTIMIZE =
 DEFS=-DTARGET_STM32F10X_MD -D__CORTEX_M4 -D__FPU_PRESENT -DWORDS_STACK_SIZE=200 -DSTM32F10X_MD -DUSE_STDPERIPH_DRIVER
 CFLAGS=-c $(MCFLAGS) $(DEFS) $(OPTIMIZE) $(DEBUG_FLAGS) $(addprefix -I,$(INCLUDE_DIRS)) -std=c99
 CXXFLAGS=-c $(MCFLAGS) $(DEFS) $(OPTIMIZE) $(DEBUG_FLAGS) $(addprefix -I,$(INCLUDE_DIRS)) -std=c++11
 CXXFLAGS+=-U__STRICT_ANSI__
 LDSCRIPT=$(BREEZY_DIR)/stm32_flash.ld
-LDFLAGS =-T $(LDSCRIPT) $(MCFLAGS) -lm -nostartfiles -lc --specs=rdimon.specs $(ARCH_FLAGS)  $(LTO_FLAGS)  $(DEBUG_FLAGS) -static  -Wl,-gc-sections
+LDFLAGS =-T $(LDSCRIPT) $(MCFLAGS) -lm -nostartfiles -lc --specs=nano.specs --specs=rdimon.specs $(ARCH_FLAGS)  $(LTO_FLAGS)  $(DEBUG_FLAGS) -static  -Wl,-gc-sections
 
 #################################
 # Build

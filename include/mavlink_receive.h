@@ -9,4 +9,4 @@
 extern uint64_t _offboard_control_time;
 
 // function declarations
-void mavlink_receive(void);
+//void mavlink_receive(void);
