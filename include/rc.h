@@ -7,6 +7,8 @@
 #include "mux.h"
 #include "param.h"
 
+namespace rosflight {
+
 typedef struct
 {
   int16_t channel;
@@ -45,5 +47,7 @@ bool rc_switch(int16_t channel);
 bool receive_rc();
 bool rc_low(int16_t channel);
 bool rc_high(int16_t channel);
+
+}
 
 #endif

@@ -1,14 +1,12 @@
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdint.h>
 #include <stdbool.h>
 
 #include "mux.h"
 #include "param.h"
+
+namespace rosflight {
 
 typedef struct
 {
@@ -45,7 +43,4 @@ void run_pid(pid_t *pid, float dt);
 void run_controller();
 void init_controller();
 
-
-#ifdef __cplusplus
 }
-#endif
