@@ -16,7 +16,9 @@ typedef enum
   TRICOPTER,
   Y6,
   FIXEDWING,
+  MYTWINDREAM_MIXER,
   NUM_MIXERS
+
 } mixer_type_t;
 
 typedef enum
