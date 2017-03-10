@@ -10,6 +10,10 @@
 
 namespace rosflight {
 
+class Arming_FSM;
+class CommLink;
+class Estimator;
+
 class Controller
 {
 public:
@@ -46,8 +50,8 @@ private:
 
   Estimator* estimator;
   Arming_FSM* fsm;
-//  Mux* mux;
-//  Mixer* mixer;
+  Mux* mux;
+  Mixer* mixer;
   Params* params;
   Board* board;
   CommLink* comm_link;

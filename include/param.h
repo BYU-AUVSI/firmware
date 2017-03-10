@@ -5,6 +5,7 @@
 
 #include "board.h"
 #include "commlink.h"
+#include "mixer.h"
 
 namespace rosflight
 {
@@ -186,6 +187,7 @@ typedef enum
 } param_type_t;
 
 class CommLink;
+class Mixer;
 class Params
 {
 
@@ -208,7 +210,7 @@ private:
   } params_t;
 
   params_t params;
-
+  Mixer* mixer_;
   CommLink* commlink_;
   Board* board_;
 
@@ -229,7 +231,7 @@ public:
 /**
  * @brief Initialize parameter values
  */
-void init_params(Board* _board, CommLink* _commlink);
+void init_params(Board* _board, CommLink* _commlink, Mixer* _mixer);
 
 /**
  * @brief Set all parameters to default values
