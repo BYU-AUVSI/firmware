@@ -35,9 +35,10 @@
 #include "mux.h"
 
 
-namespace rosflight {
+namespace rosflight
+{
 
-void Mux::init(Arming_FSM* _fsm, Params* _params, Board* _board)
+void Mux::init(Arming_FSM *_fsm, Params *_params, Board *_board)
 {
   fsm = _fsm;
   params = _params;
@@ -47,8 +48,8 @@ void Mux::init(Arming_FSM* _fsm, Params* _params, Board* _board)
 
 void Mux::do_muxing(uint8_t mux_channel)
 {
-  mux_t* mux_ptr = &(muxes[mux_channel]);
-  if(mux_ptr->rc->active)
+  mux_t *mux_ptr = &(muxes[mux_channel]);
+  if (mux_ptr->rc->active)
   {
     (*mux_ptr->combined) = (*mux_ptr->rc);
   }
