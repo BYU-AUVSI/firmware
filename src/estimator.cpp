@@ -1,53 +1,19 @@
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include <stdlib.h>
-#include <stdbool.h>
-#include <math.h>
-
-#include <turbotrig.h>
-#include <turbovec.h>
-
-#include "board.h"
-#include "sensors.h"
-#include "param.h"
-
 #include "estimator.h"
 
-state_t _current_state;
-vector_t _adaptive_gyro_bias;
+namespace rosflight {
 
-static vector_t w1;
-static vector_t w2;
-static vector_t wbar;
-static vector_t wfinal;
-static vector_t w_acc;
-static const vector_t g = {0.0f, 0.0f, -1.0f};
-static vector_t b;
-static quaternion_t q_tilde;
-static quaternion_t q_hat;
-static uint64_t last_time;
-
-static bool mat_exp;
-static bool quad_int;
-static bool use_acc;
-
-static vector_t _accel_LPF;
-static vector_t _gyro_LPF;
-
-void reset_state()
+void Estimator::reset_state()
 {
-  _current_state.q.w = 1.0f;
-  _current_state.q.x = 0.0f;
-  _current_state.q.y = 0.0f;
-  _current_state.q.z = 0.0f;
-  _current_state.omega.x = 0.0f;
-  _current_state.omega.y = 0.0f;
-  _current_state.omega.z = 0.0f;
-  _current_state.roll = 0.0f;
-  _current_state.pitch = 0.0f;
-  _current_state.yaw = 0.0f;
+  q.w = 1.0f;
+  q.x = 0.0f;
+  q.y = 0.0f;
+  q.z = 0.0f;
+  omega.x = 0.0f;
+  omega.y = 0.0f;
+  omega.z = 0.0f;
+  roll = 0.0f;
+  pitch = 0.0f;
+  yaw = 0.0f;
 
   q_hat.w = 1.0f;
   q_hat.x = 0.0f;
@@ -84,61 +50,63 @@ void reset_state()
   _gyro_LPF.z = 0;
 }
 
-void reset_adaptive_bias()
+void Estimator::reset_adaptive_bias()
 {
   b.x = 0;
   b.y = 0;
   b.z = 0;
 }
 
-void init_estimator(bool use_matrix_exponential, bool use_quadratic_integration, bool use_accelerometer)
+void Estimator::init_estimator(Params* _params, Sensors* _sensors)
 {
-  mat_exp = use_matrix_exponential;
-  quad_int = use_quadratic_integration;
-  use_acc = use_accelerometer;
+  params_ = _params;
+  sensors_ = _sensors;
+  mat_exp = false;
+  quad_int = false;
+  use_acc = true;
 
   last_time = 0;
 
   reset_state();
 }
 
-void run_LPF()
+void Estimator::run_LPF()
 {
-  float alpha_acc = get_param_float(PARAM_ACC_ALPHA);
-  _accel_LPF.x = (1.0f-alpha_acc)*_accel.x + alpha_acc*_accel_LPF.x;
-  _accel_LPF.y = (1.0f-alpha_acc)*_accel.y + alpha_acc*_accel_LPF.y;
-  _accel_LPF.z = (1.0f-alpha_acc)*_accel.z + alpha_acc*_accel_LPF.z;
+  float alpha_acc = params_->get_param_float(PARAM_ACC_ALPHA);
+  _accel_LPF.x = (1.0f-alpha_acc)*sensors_->_accel.x + alpha_acc*_accel_LPF.x;
+  _accel_LPF.y = (1.0f-alpha_acc)*sensors_->_accel.y + alpha_acc*_accel_LPF.y;
+  _accel_LPF.z = (1.0f-alpha_acc)*sensors_->_accel.z + alpha_acc*_accel_LPF.z;
 
-  float alpha_gyro = get_param_float(PARAM_GYRO_ALPHA);
-  _gyro_LPF.x = (1.0f-alpha_gyro)*_gyro.x + alpha_gyro*_gyro_LPF.x;
-  _gyro_LPF.y = (1.0f-alpha_gyro)*_gyro.y + alpha_gyro*_gyro_LPF.y;
-  _gyro_LPF.z = (1.0f-alpha_gyro)*_gyro.z + alpha_gyro*_gyro_LPF.z;
+  float alpha_gyro = params_->get_param_float(PARAM_GYRO_ALPHA);
+  _gyro_LPF.x = (1.0f-alpha_gyro)*sensors_->_gyro.x + alpha_gyro*_gyro_LPF.x;
+  _gyro_LPF.y = (1.0f-alpha_gyro)*sensors_->_gyro.y + alpha_gyro*_gyro_LPF.y;
+  _gyro_LPF.z = (1.0f-alpha_gyro)*sensors_->_gyro.z + alpha_gyro*_gyro_LPF.z;
 }
 
 
-void run_estimator()
+void Estimator::run_estimator()
 {
   static float kp, ki;
-  _current_state.now_us = _imu_time;
-  if (last_time == 0 || _current_state.now_us <= last_time)
+  now_us = sensors_->_imu_time;
+  if (last_time == 0 || now_us <= last_time)
   {
-    last_time = _current_state.now_us;
+    last_time = now_us;
     return;
   }
 
-  float dt = (_current_state.now_us - last_time) * 1e-6f;
-  last_time = _current_state.now_us;
+  float dt = (now_us - last_time) * 1e-6f;
+  last_time = now_us;
 
   // Crank up the gains for the first few seconds for quick convergence
-  if (_imu_time < (uint64_t)get_param_int(PARAM_INIT_TIME)*1000)
+  if (now_us < (uint64_t)params_->get_param_int(PARAM_INIT_TIME)*1000)
   {
-    kp = get_param_float(PARAM_FILTER_KP)*10.0f;
-    ki = get_param_float(PARAM_FILTER_KI)*10.0f;
+    kp = params_->get_param_float(PARAM_FILTER_KP)*10.0f;
+    ki = params_->get_param_float(PARAM_FILTER_KI)*10.0f;
   }
   else
   {
-    kp = get_param_float(PARAM_FILTER_KP);
-    ki = get_param_float(PARAM_FILTER_KI);
+    kp = params_->get_param_float(PARAM_FILTER_KP);
+    ki = params_->get_param_float(PARAM_FILTER_KI);
   }
 
   // Run LPF to reject a lot of noise
@@ -237,15 +205,13 @@ void run_estimator()
   }
 
   // Save attitude estimate
-  _current_state.q = q_hat;
+  q = q_hat;
 
   // Extract Euler Angles for controller
-  euler_from_quat(_current_state.q, &_current_state.roll, &_current_state.pitch, &_current_state.yaw);
+  euler_from_quat(q, &roll, &pitch, &yaw);
 
   // Save off adjust gyro measurements with estimated biases for control
-  _current_state.omega = vector_sub(_gyro_LPF, b);
+  omega = vector_sub(_gyro_LPF, b);
 }
 
-#ifdef __cplusplus
 }
-#endif
