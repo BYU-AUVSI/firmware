@@ -7,7 +7,7 @@
 #include "sensors.h"
 #include "estimator.h"
 #include "param.h"
-#include "mode.h"
+#include "arming_fsm.h"
 #include "rc.h"
 
 #include "mavlink_stream.h"

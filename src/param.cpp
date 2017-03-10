@@ -16,20 +16,17 @@
 namespace rosflight
 {
 
-Params::Params(Board *_board)
-{
-  board_ = _board;
-}
+Params::Params() {}
 
 // local function definitions
-void Params::init_param_int(param_id_t id, const char name[PARAMS_NAME_LENGTH], int32_t value)
+void Params::init_param_int(uint16_t id, const char name[PARAMS_NAME_LENGTH], int32_t value)
 {
   memcpy(params.names[id], name, PARAMS_NAME_LENGTH);
   params.values[id] = value;
   params.types[id] = PARAM_TYPE_INT32;
 }
 
-void Params::init_param_float(param_id_t id, const char name[PARAMS_NAME_LENGTH], float value)
+void Params::init_param_float(uint16_t id, const char name[PARAMS_NAME_LENGTH], float value)
 {
   memcpy(params.names[id], name, PARAMS_NAME_LENGTH);
   params.values[id] = *((int32_t *) &value);
@@ -48,11 +45,13 @@ uint8_t Params::compute_checksum(void)
 }
 
 // function definitions
-void Params::init_params(void)
+void Params::init_params(Board *_board, Mavlink* _mavlink)
 {
+  board_ = _board;
+  mavlink_ = _mavlink;
   for(uint32_t i = 0; i < static_cast<uint32_t>(PARAMS_COUNT); i++)
   {
-    init_param_int(static_cast<param_id_t>(i), "DEFAULT", 0);
+    init_param_int(static_cast<uint16_t>(i), "DEFAULT", 0);
   }
   board_->memory_init();
   if (!read_params())
@@ -62,7 +61,7 @@ void Params::init_params(void)
   }
 
   for (uint16_t id = 0; id < PARAMS_COUNT; id++)
-    param_change_callback((param_id_t) id);
+    param_change_callback((uint16_t) id);
 }
 
 void Params::set_param_defaults(void)
@@ -263,7 +262,7 @@ bool Params::write_params(void)
   return true;
 }
 
-void Params::param_change_callback(param_id_t id)
+void Params::param_change_callback(uint16_t id)
 {
   switch (id)
   {
@@ -317,7 +316,7 @@ void Params::param_change_callback(param_id_t id)
   }
 }
 
-param_id_t Params::lookup_param_id(const char name[PARAMS_NAME_LENGTH])
+uint16_t Params::lookup_param_id(const char name[PARAMS_NAME_LENGTH])
 {
   for (uint16_t id = 0; id < PARAMS_COUNT; id++)
   {
@@ -337,33 +336,33 @@ param_id_t Params::lookup_param_id(const char name[PARAMS_NAME_LENGTH])
     }
 
     if (match)
-      return (param_id_t) id;
+      return (uint16_t) id;
   }
 
   return PARAMS_COUNT;
 }
 
-int Params::get_param_int(param_id_t id)
+int Params::get_param_int(uint16_t id)
 {
   return params.values[id];
 }
 
-float Params::get_param_float(param_id_t id)
+float Params::get_param_float(uint16_t id)
 {
   return *(float *) &params.values[id];
 }
 
-char *Params::get_param_name(param_id_t id)
+char *Params::get_param_name(uint16_t id)
 {
   return params.names[id];
 }
 
-param_type_t Params::get_param_type(param_id_t id)
+param_type_t Params::get_param_type(uint16_t id)
 {
   return params.types[id];
 }
 
-bool Params::set_param_int(param_id_t id, int32_t value)
+bool Params::set_param_int(uint16_t id, int32_t value)
 {
   if (id < PARAMS_COUNT && value != params.values[id])
   {
@@ -375,14 +374,14 @@ bool Params::set_param_int(param_id_t id, int32_t value)
   return false;
 }
 
-bool Params::set_param_float(param_id_t id, float value)
+bool Params::set_param_float(uint16_t id, float value)
 {
   return set_param_int(id, *(int32_t *) &value);
 }
 
 bool Params::set_param_by_name_int(const char name[PARAMS_NAME_LENGTH], int32_t value)
 {
-  param_id_t id = lookup_param_id(name);
+  uint16_t id = lookup_param_id(name);
   return set_param_int(id, value);
 }
 
