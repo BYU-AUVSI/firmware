@@ -4,7 +4,7 @@
 #include "param.h"
 #include "mux.h"
 #include "sensors.h"
-#include "rc.h"
+//#include "rc.h"
 
 #include "mavlink.h"
 
