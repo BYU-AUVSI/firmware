@@ -21,29 +21,29 @@ namespace rosflight
  void Mavlink::mavlink_send_heartbeat(void)
 {
   MAV_MODE armed_mode = MAV_MODE_ENUM_END; // used for failsafe
-  if (_armed_state == ARMED)
-    armed_mode = MAV_MODE_MANUAL_ARMED;
-  else if (_armed_state == DISARMED)
-    armed_mode = MAV_MODE_MANUAL_DISARMED;
+//  if (_armed_state == ARMED)
+//    armed_mode = MAV_MODE_MANUAL_ARMED;
+//  else if (_armed_state == DISARMED)
+//    armed_mode = MAV_MODE_MANUAL_DISARMED;
 
   uint8_t control_mode = 0;
-  if (get_param_int(PARAM_FIXED_WING))
-  {
-    control_mode = MODE_PASS_THROUGH;
-  }
-  else if (rc_switch(get_param_int(PARAM_RC_F_CONTROL_TYPE_CHANNEL)))
-  {
-    control_mode = MODE_ROLL_PITCH_YAWRATE_ALTITUDE;
-  }
-  else
-  {
-    control_mode = rc_switch(get_param_int(PARAM_RC_ATT_CONTROL_TYPE_CHANNEL)) ? MODE_ROLL_PITCH_YAWRATE_THROTTLE :
-                   MODE_ROLLRATE_PITCHRATE_YAWRATE_THROTTLE;
-  }
+//  if (params_->get_param_int(PARAM_FIXED_WING))
+//  {
+//    control_mode = MODE_PASS_THROUGH;
+//  }
+//  else if (rc_switch(params_->get_param_int(PARAM_RC_F_CONTROL_TYPE_CHANNEL)))
+//  {
+//    control_mode = MODE_ROLL_PITCH_YAWRATE_ALTITUDE;
+//  }
+//  else
+//  {
+//    control_mode = rc_switch(params_->get_param_int(PARAM_RC_ATT_CONTROL_TYPE_CHANNEL)) ? MODE_ROLL_PITCH_YAWRATE_THROTTLE :
+//                   MODE_ROLLRATE_PITCHRATE_YAWRATE_THROTTLE;
+//  }
 
   mavlink_message_t msg;
-  mavlink_msg_heartbeat_pack(get_param_int(PARAM_SYSTEM_ID), 0, &msg,
-                             get_param_int(PARAM_FIXED_WING) ? MAV_TYPE_FIXED_WING : MAV_TYPE_QUADROTOR,
+  mavlink_msg_heartbeat_pack(params_->get_param_int(PARAM_SYSTEM_ID), 0, &msg,
+                             params_->get_param_int(PARAM_FIXED_WING) ? MAV_TYPE_FIXED_WING : MAV_TYPE_QUADROTOR,
                              MAV_AUTOPILOT_GENERIC,
                              armed_mode,
                              control_mode,
@@ -54,30 +54,30 @@ namespace rosflight
  void Mavlink::mavlink_send_attitude(void)
 {
   mavlink_message_t msg;
-  mavlink_msg_attitude_quaternion_pack(get_param_int(PARAM_SYSTEM_ID), 0, &msg,
-                                        clock_millis(),
-                                        _current_state.q.w,
-                                        _current_state.q.x,
-                                        _current_state.q.y,
-                                        _current_state.q.z,
-                                        _current_state.omega.x,
-                                        _current_state.omega.y,
-                                        _current_state.omega.z);
+//  mavlink_msg_attitude_quaternion_pack(sysid, compid, &msg,
+//                                        board_->clock_millis(),
+//                                        _current_state.q.w,
+//                                        _current_state.q.x,
+//                                        _current_state.q.y,
+//                                        _current_state.q.z,
+//                                        _current_state.omega.x,
+//                                        _current_state.omega.y,
+//                                        _current_state.omega.z);
   send_message(msg);
 }
 
 void Mavlink::mavlink_send_imu(void)
 {
   mavlink_message_t msg;
-  mavlink_msg_small_imu_pack(get_param_int(PARAM_SYSTEM_ID), 0, &msg,
-                             _imu_time,
-                             _accel.x,
-                             _accel.y,
-                             _accel.z,
-                             _gyro.x,
-                             _gyro.y,
-                             _gyro.z,
-                             _imu_temperature);
+//  mavlink_msg_small_imu_pack(sysid, compid, &msg,
+//                             _imu_time,
+//                             _accel.x,
+//                             _accel.y,
+//                             _accel.z,
+//                             _gyro.x,
+//                             _gyro.y,
+//                             _gyro.z,
+//                             _imu_temperature);
   send_message(msg);
 
 }
@@ -85,80 +85,86 @@ void Mavlink::mavlink_send_imu(void)
 void Mavlink::mavlink_send_servo_output_raw(void)
 {
   mavlink_message_t msg;
-  mavlink_msg_servo_output_raw_pack(get_param_int(PARAM_SYSTEM_ID), 0, &msg,
-                                    clock_micros(),
-                                    0,
-                                    _outputs[0],
-                                    _outputs[1],
-                                    _outputs[2],
-                                    _outputs[3],
-                                    _outputs[4],
-                                    _outputs[5],
-                                    _outputs[6],
-                                    _outputs[7]);
+//  mavlink_msg_servo_output_raw_pack(sysid, compid, &msg,
+//                                    board_->clock_micros(),
+//                                    0,
+//                                    _outputs[0],
+//                                    _outputs[1],
+//                                    _outputs[2],
+//                                    _outputs[3],
+//                                    _outputs[4],
+//                                    _outputs[5],
+//                                    _outputs[6],
+//                                    _outputs[7]);
   send_message(msg);
 }
 
  void Mavlink::mavlink_send_rc_raw(void)
 {
   mavlink_message_t msg;
-  mavlink_msg_rc_channels_pack(get_param_int(PARAM_SYSTEM_ID), 0, &msg,
-                               clock_millis(),
-                               0,
-                               pwm_read(0),
-                               pwm_read(1),
-                               pwm_read(2),
-                               pwm_read(3),
-                               pwm_read(4),
-                               pwm_read(5),
-                               pwm_read(6),
-                               pwm_read(7),
-                               0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0);
+//  mavlink_msg_rc_channels_pack(sysid, compid, &msg,
+//                               board_->clock_millis(),
+//                               0,
+//                               board_->pwm_read(0),
+//                               board_->pwm_read(1),
+//                               board_->pwm_read(2),
+//                               board_->pwm_read(3),
+//                               board_->pwm_read(4),
+//                               board_->pwm_read(5),
+//                               board_->pwm_read(6),
+//                               board_->pwm_read(7),
+//                               0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0);
   send_message(msg);
 }
 
 void Mavlink::mavlink_send_diff_pressure(void)
 {
-  if (diff_pressure_present())
+  if (board_->diff_pressure_present())
   {
     mavlink_message_t msg;
-    mavlink_msg_diff_pressure_pack(get_param_int(PARAM_SYSTEM_ID), 0, &msg, _diff_pressure_velocity, _diff_pressure, _diff_pressure_temp);
+//    mavlink_msg_diff_pressure_pack(sysid, compid, &msg,
+//                                   _diff_pressure_velocity,
+//                                   _diff_pressure,
+//                                   _diff_pressure_temp);
     send_message(msg);
   }
 }
 
 void Mavlink::mavlink_send_baro(void)
 {
-  if (baro_present())
+  if (board_->baro_present())
   {
     mavlink_message_t msg;
-    mavlink_msg_small_baro_pack(get_param_int(PARAM_SYSTEM_ID), 0, &msg, _baro_altitude, _baro_pressure, _baro_temperature);
+//    mavlink_msg_small_baro_pack(sysid, compid, &msg,
+//                                _baro_altitude,
+//                                _baro_pressure,
+//                                _baro_temperature);
     send_message(msg);
   }
 }
 
 void Mavlink::mavlink_send_sonar(void)
 {
-  if (sonar_present())
+  if (board_->sonar_present())
   {
     mavlink_message_t msg;
-    mavlink_msg_small_sonar_pack(get_param_int(PARAM_SYSTEM_ID), 0, &msg,
-                                 _sonar_range,
-                                 8.0,
-                                 0.25);
+//    mavlink_msg_small_sonar_pack(sysid, compid, &msg,
+//                                 _sonar_range,
+//                                 8.0,
+//                                 0.25);
     send_message(msg);
   }
 }
 
 void Mavlink::mavlink_send_mag(void)
 {
-  if (mag_present())
+  if (board_->mag_present())
   {
     mavlink_message_t msg;
-    mavlink_msg_small_mag_pack(get_param_int(PARAM_SYSTEM_ID), 0, &msg,
-                               _mag.x,
-                               _mag.y,
-                               _mag.z);
+//    mavlink_msg_small_mag_pack(sysid, compid, &msg,
+//                               _mag.x,
+//                               _mag.y,
+//                               _mag.z);
     send_message(msg);
   }
 }
@@ -177,7 +183,7 @@ void Mavlink::mavlink_stream(uint64_t time_us)
     {
       // if we took too long, set the last_time_us to be where it should have been
       mavlink_streams[i].last_time_us += mavlink_streams[i].period_us;
-      this->*mavlink_streams[i].send_function;
+      (this->*mavlink_streams[i].send_function)();
     }
   }
 }

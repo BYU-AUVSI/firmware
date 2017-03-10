@@ -1,23 +1,24 @@
-#include "board.h"
+#include "controller.h"
+
 #include "mavlink.h"
-#include "mavlink_util.h"
-#include "param.h"
 
-void mavlink_send_named_value_int(const char *const name, int32_t value)
+namespace rosflight{
+
+void Mavlink::mavlink_send_named_value_int(const char *const name, int32_t value)
 {
   mavlink_message_t msg;
-  mavlink_msg_named_value_int_pack(get_param_int(PARAM_SYSTEM_ID), 0, &msg, clock_millis(), name, value);
+  mavlink_msg_named_value_int_pack(sysid, compid, &msg, board_->clock_millis(), name, value);
   send_message(msg);
 }
 
-void mavlink_send_named_value_float(const char *const name, float value)
+void Mavlink::mavlink_send_named_value_float(const char *const name, float value)
 {
   mavlink_message_t msg;
-  mavlink_msg_named_value_float_pack(get_param_int(PARAM_SYSTEM_ID), 0, &msg, clock_millis(), name, value);
+  mavlink_msg_named_value_float_pack(sysid, compid, &msg, board_->clock_millis(), name, value);
   send_message(msg);
 }
 
-void mavlink_send_named_command_struct(const char *const name, control_t command_struct)
+void Mavlink::mavlink_send_named_command_struct(const char *const name, control_t command_struct)
 {
   uint8_t control_mode;
   if (command_struct.x.type == RATE && command_struct.y.type == RATE)
@@ -44,7 +45,7 @@ void mavlink_send_named_command_struct(const char *const name, control_t command
                    !(command_struct.z.active) << 2 ||
                    !(command_struct.F.active) << 3;
   mavlink_message_t msg;
-  mavlink_msg_named_command_struct_pack(get_param_int(PARAM_SYSTEM_ID), 0, &msg, name,
+  mavlink_msg_named_command_struct_pack(sysid, compid, &msg, name,
                                         control_mode,
                                         ignore,
                                         command_struct.x.value,
@@ -52,4 +53,6 @@ void mavlink_send_named_command_struct(const char *const name, control_t command
                                         command_struct.z.value,
                                         command_struct.F.value);
   send_message(msg);
+}
+
 }

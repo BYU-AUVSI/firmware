@@ -22,10 +22,11 @@
 
 namespace rosflight {
 
-ROSflight::ROSflight(Board *_board, Params *_params)
+ROSflight::ROSflight(Board *_board, Params *_params, Mavlink *_mavlink)
 {
   board_ = _board;
   params_ = _params;
+  mavlink_ = _mavlink;
 }
 
 // Initialization Routine
@@ -33,19 +34,19 @@ void ROSflight::rosflight_init(void)
 {
   board_->init_board();
 
-//  // Read EEPROM to get initial params
+  // Read EEPROM to get initial params
   params_->init_params();
 
-//  /***********************/
-//  /***  Hardware Setup ***/
-//  /***********************/
+  /***********************/
+  /***  Hardware Setup ***/
+  /***********************/
 
 //  // Initialize PWM and RC
 //  init_PWM();
 //  init_rc();
 
-//  // Initialize MAVlink Communication
-//  init_mavlink();
+  // Initialize MAVlink Communication
+  mavlink_->init_mavlink();
 
 //  // Initialize Sensors
 //  init_sensors();
@@ -83,11 +84,11 @@ void ROSflight::rosflight_run()
 //    mix_output(); // 16 | 13 us
 //  }
 
-//  /*********************/
-//  /***  Post-Process ***/
-//  /*********************/
+  /*********************/
+  /***  Post-Process ***/
+  /*********************/
 //  // internal timers figure out what and when to send
-//  mavlink_stream(board_->clock_micros()); // 165 | 27 | 2
+  mavlink_->mavlink_stream(board_->clock_micros()); // 165 | 27 | 2
 
 //  // receive mavlink messages
 //  mavlink_receive(); // 159 | 1 | 1
