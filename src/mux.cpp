@@ -1,34 +1,18 @@
 #include <stdbool.h>
-
-#include "mavlink_util.h"
-
-#include "board.h"
-#include "rc.h"
 #include "mux.h"
-#include "param.h"
-#include "mode.h"
 
-control_t _rc_control;
-control_t _offboard_control;
-control_t _combined_control;
 
-control_t _failsafe_control =
+namespace rosflight {
+
+void Mux::init(Arming_FSM* _fsm, Params* _params, Board* _board)
 {
-  {true, ANGLE, 0.0},
-  {true, ANGLE, 0.0},
-  {true, RATE, 0.0},
-  {true, THROTTLE, 0.0}
-};
+  fsm = _fsm;
+  params = _params;
+  board = _board;
+  _new_command = false;
+}
 
-mux_t muxes[4] =
-{
-  {&_rc_control.x, &_offboard_control.x, &_combined_control.x},
-  {&_rc_control.y, &_offboard_control.y, &_combined_control.y},
-  {&_rc_control.z, &_offboard_control.z, &_combined_control.z},
-  {&_rc_control.F, &_offboard_control.F, &_combined_control.F}
-};
-
-void do_muxing(uint8_t mux_channel)
+void Mux::do_muxing(uint8_t mux_channel)
 {
   mux_t* mux_ptr = &(muxes[mux_channel]);
   if(mux_ptr->rc->active)
@@ -47,7 +31,7 @@ void do_muxing(uint8_t mux_channel)
   }
 }
 
-void do_min_throttle_muxing()
+void Mux::do_min_throttle_muxing()
 {
   if (_offboard_control.F.active)
   {
@@ -68,9 +52,7 @@ void do_min_throttle_muxing()
   }
 }
 
-bool _new_command;
-
-bool mux_inputs()
+bool Mux::mux_inputs()
 {
   if (!_new_command)
   {
@@ -79,7 +61,7 @@ bool mux_inputs()
   }
   // otherwise combine the new commands
 
-  if (_armed_state == DISARMED_FAILSAFE || _armed_state == ARMED_FAILSAFE)
+  if (fsm->_armed_state == DISARMED_FAILSAFE || fsm->_armed_state == ARMED_FAILSAFE)
   {
     _combined_control = _failsafe_control;
   }
@@ -88,7 +70,7 @@ bool mux_inputs()
   {
     for (uint8_t i = 0; i < 4; i++)
     {
-      if (i == MUX_F && get_param_int(PARAM_RC_OVERRIDE_TAKE_MIN_THROTTLE))
+      if (i == MUX_F && params->get_param_int(PARAM_RC_OVERRIDE_TAKE_MIN_THROTTLE))
       {
         do_min_throttle_muxing();
       }
@@ -101,15 +83,17 @@ bool mux_inputs()
     // Light to indicate override
     if (_rc_control.x.active || _rc_control.y.active || _rc_control.z.active || _rc_control.F.active)
     {
-      led0_on();
+      board->led0_on();
     }
     else
     {
-      led0_off();
+      board->led0_off();
     }
   }
 
   // reset the new command flag
   _new_command = false;
   return true;
+}
+
 }
