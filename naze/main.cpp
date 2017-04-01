@@ -1,8 +1,10 @@
-#include "rosflight.h"
 #include "naze32.h"
-#include "param.h"
-#include "arming_fsm.h"
+
+#include "rosflight.h"
 #include "mavlink.h"
+//#include "param.h"
+//#include "arming_fsm.h"
+
 
 int main(void)
 {
