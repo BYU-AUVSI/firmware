@@ -31,8 +31,6 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-
-
 #pragma once
 
 #include <stdint.h>
@@ -45,28 +43,35 @@
 namespace rosflight
 {
 
-typedef enum
+class Mode
 {
-  DISARMED,
-  ARMED,
-  DISARMED_FAILSAFE,
-  ARMED_FAILSAFE
-} armed_state_t;
 
-class Sensors;
-class Params;
-class RC;
-
-class Arming_FSM
-{
 private:
+
+  typedef enum
+  {
+    DISARMED = 0,
+    ARMED = 1
+  } armed_state_t;
+
+  typedef enum
+  {
+    NORMAL = 0,
+    FAILSAFE = 1
+  } failsafe_state_t;
+
   RC *rc_;
   Board *board_;
-  Sensors *sensors_;
   Params *params_;
+
+  // We need a sensors pointer for gyro calibration on arm
+  Sensors *sensors_;
 
   uint32_t prev_time_ms;
   uint32_t time_sticks_have_been_in_arming_position_ms = 0;
+
+  armed_state_t _armed_state;
+  failsafe_state_t _failsafe_state;
 
   bool started_gyro_calibration;
 
@@ -76,11 +81,13 @@ private:
 
 
 public:
-  Arming_FSM();
-  armed_state_t _armed_state;
+  Mode();
 
   void init_mode(Board *_board, Sensors *_sensors, Params *_params, RC *_rc);
-  bool check_mode();
+  bool update_armed_state();
+
+  inline bool armed() {return _armed_state;}
+  inline bool in_failsafe() {return _failsafe_state;}
 
 };
 
