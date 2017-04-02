@@ -166,22 +166,20 @@ bool Mux::do_throttle_muxing(void)
   return rc_override;
 }
 
-bool _new_command;
+void Mux::signal_new_command()
+{
+  new_command = true;
+}
 
 bool Mux::mux_inputs()
 {
-  if (!_new_command)
-  {
-    // we haven't received any new commands, so we shouldn't do anything
-    return false;
-  }
-
   // otherwise combine the new commands
   if (fsm->in_failsafe())
   {
     _combined_control = _failsafe_control;
   }
-  else
+
+  else if (rc->new_command())
   {
     // Read RC
     interpret_rc();
@@ -204,9 +202,6 @@ bool Mux::mux_inputs()
       board->led0_off();
     }
   }
-
-  // reset the new command flag
-  _new_command = false;
   return true;
 }
 
