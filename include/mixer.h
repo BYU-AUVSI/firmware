@@ -49,6 +49,7 @@ typedef enum
   Y6,
   X8,
   FIXEDWING,
+  FIXEDWING_TWIN,
   NUM_MIXERS
 } mixer_type_t;
 
