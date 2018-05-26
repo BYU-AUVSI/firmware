@@ -53,7 +53,7 @@ const int Sensors::SENSOR_CAL_DELAY_CYCLES = 128;
 const int Sensors::SENSOR_CAL_CYCLES = 127;
 
 const float Sensors::BARO_MAX_CALIBRATION_VARIANCE = 25.0;   // standard dev about 0.2 m
-const float Sensors::DIFF_PRESSURE_MAX_CALIBRATION_VARIANCE = 100.0;   // standard dev about 3 m/s
+const float Sensors::DIFF_PRESSURE_MAX_CALIBRATION_VARIANCE = 1000.0;   // standard dev about 3 m/s when = to 100.0
 
 Sensors::Sensors(ROSflight& rosflight) :
   rf_(rosflight)

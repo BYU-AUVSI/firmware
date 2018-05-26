@@ -108,12 +108,12 @@ void Params::set_defaults(void)
   init_param_int(PARAM_STREAM_HEARTBEAT_RATE, "STRM_HRTBT", 1); // Rate of heartbeat streaming (Hz) | 0 | 1000
   init_param_int(PARAM_STREAM_STATUS_RATE, "STRM_STATUS", 10); // Rate of status streaming (Hz) | 0 | 1000
 
-  init_param_int(PARAM_STREAM_ATTITUDE_RATE, "STRM_ATTITUDE", 100); // Rate of attitude stream (Hz) | 0 | 1000
-  init_param_int(PARAM_STREAM_IMU_RATE, "STRM_IMU", 500); // Rate of IMU stream (Hz) | 0 | 1000
-  init_param_int(PARAM_STREAM_MAG_RATE, "STRM_MAG", 75); // Rate of magnetometer stream (Hz) | 0 | 75
-  init_param_int(PARAM_STREAM_BARO_RATE, "STRM_BARO", 100); // Rate of barometer stream (Hz) | 0 | 100
+  init_param_int(PARAM_STREAM_ATTITUDE_RATE, "STRM_ATTITUDE", 1); // Rate of attitude stream (Hz) | 0 | 1000
+  init_param_int(PARAM_STREAM_IMU_RATE, "STRM_IMU", 0); // Rate of IMU stream (Hz) | 0 | 1000
+  init_param_int(PARAM_STREAM_MAG_RATE, "STRM_MAG", 0); // Rate of magnetometer stream (Hz) | 0 | 75
+  init_param_int(PARAM_STREAM_BARO_RATE, "STRM_BARO", 0); // Rate of barometer stream (Hz) | 0 | 100
   init_param_int(PARAM_STREAM_AIRSPEED_RATE, "STRM_AIRSPEED", 20); // Rate of airspeed stream (Hz) | 0 |  50
-  init_param_int(PARAM_STREAM_SONAR_RATE, "STRM_SONAR", 40); // Rate of sonar stream (Hz) | 0 | 40
+  init_param_int(PARAM_STREAM_SONAR_RATE, "STRM_SONAR", 0); // Rate of sonar stream (Hz) | 0 | 40
 
   init_param_int(PARAM_STREAM_OUTPUT_RAW_RATE, "STRM_SERVO", 50); // Rate of raw output stream | 0 |  490
   init_param_int(PARAM_STREAM_RC_RAW_RATE, "STRM_RC", 50); // Rate of raw RC input stream | 0 | 50
@@ -142,9 +142,9 @@ void Params::set_defaults(void)
   init_param_float(PARAM_PID_PITCH_ANGLE_I, "PID_PITCH_ANG_I", 0.0f);  // Pitch Angle Integral Gain | 0.0 | 1000.0
   init_param_float(PARAM_PID_PITCH_ANGLE_D, "PID_PITCH_ANG_D", 0.07f); // Pitch Angle Derivative Gain | 0.0 | 1000.0
 
-  init_param_float(PARAM_X_EQ_TORQUE, "X_EQ_TORQUE", 0.0f); // Equilibrium torque added to output of controller on x axis | -1.0 | 1.0
-  init_param_float(PARAM_Y_EQ_TORQUE, "Y_EQ_TORQUE", 0.0f); // Equilibrium torque added to output of controller on y axis | -1.0 | 1.0
-  init_param_float(PARAM_Z_EQ_TORQUE, "Z_EQ_TORQUE", 0.0f); // Equilibrium torque added to output of controller on z axis | -1.0 | 1.0
+  init_param_float(PARAM_X_EQ_TORQUE, "X_EQ_TORQUE", -0.082f); // Equilibrium torque added to output of controller on x axis | -1.0 | 1.0
+  init_param_float(PARAM_Y_EQ_TORQUE, "Y_EQ_TORQUE", -0.056f); // Equilibrium torque added to output of controller on y axis | -1.0 | 1.0
+  init_param_float(PARAM_Z_EQ_TORQUE, "Z_EQ_TORQUE", -0.1f); // Equilibrium torque added to output of controller on z axis | -1.0 | 1.0
 
   init_param_float(PARAM_PID_TAU, "PID_TAU", 0.05f); // Dirty Derivative time constant - See controller documentation | 0.0 | 1.0
 
@@ -172,8 +172,8 @@ void Params::set_defaults(void)
 
   init_param_int(PARAM_CALIBRATE_GYRO_ON_ARM, "CAL_GYRO_ARM", false); // True if desired to calibrate gyros on arm | 0 | 1
 
-  init_param_float(PARAM_GYRO_ALPHA, "GYRO_LPF_ALPHA", 0.888f); // Low-pass filter constant - See estimator documentation | 0 | 1.0
-  init_param_float(PARAM_ACC_ALPHA, "ACC_LPF_ALPHA", 0.888f); // Low-pass filter constant - See estimator documentation | 0 | 1.0
+  init_param_float(PARAM_GYRO_ALPHA, "GYRO_LPF_ALPHA", 0.88f); // Low-pass filter constant - See estimator documentation | 0 | 1.0
+  init_param_float(PARAM_ACC_ALPHA, "ACC_LPF_ALPHA", 0.88f); // Low-pass filter constant - See estimator documentation | 0 | 1.0
 
   init_param_float(PARAM_GYRO_X_BIAS, "GYRO_X_BIAS", 0.0f); // Constant x-bias of gyroscope readings | -1.0 | 1.0
   init_param_float(PARAM_GYRO_Y_BIAS, "GYRO_Y_BIAS", 0.0f); // Constant y-bias of gyroscope readings | -1.0 | 1.0
@@ -236,11 +236,11 @@ void Params::set_defaults(void)
   /***************************/
   /*** FRAME CONFIGURATION ***/
   /***************************/
-  init_param_int(PARAM_MIXER, "MIXER", 10); // Which mixer to choose - See Mixer documentation | 0 | 10
+  init_param_int(PARAM_MIXER, "MIXER", Mixer::FIXEDWING); // Which mixer to choose - See Mixer documentation | 0 | 10
 
   init_param_int(PARAM_FIXED_WING, "FIXED_WING", true); // switches on passthrough commands for fixedwing operation | 0 | 1
-  init_param_int(PARAM_ELEVATOR_REVERSE, "ELEVATOR_REV", 1); // reverses elevator servo output | 0 | 1
-  init_param_int(PARAM_AILERON_REVERSE, "AIL_REV", 1); // reverses aileron servo output | 0 | 1
+  init_param_int(PARAM_ELEVATOR_REVERSE, "ELEVATOR_REV", true); // reverses elevator servo output | 0 | 1
+  init_param_int(PARAM_AILERON_REVERSE, "AIL_REV", true); // reverses aileron servo output | 0 | 1
   init_param_int(PARAM_RUDDER_REVERSE, "RUDDER_REV", 0); // reverses rudder servo output | 0 | 1
 
   /********************/
