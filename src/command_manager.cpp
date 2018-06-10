@@ -267,11 +267,11 @@ bool CommandManager::run()
   bool last_rc_override = rc_override_;
 
   // Check for and apply failsafe command
-  if (RF_.state_manager_.state().failsafe)
+  if (RF_.state_manager_.state().failsafe && offboard_control_active() == false)
   {
     combined_command_ = failsafe_command_;
   }
-  else if (RF_.rc_.new_command())
+  else if (RF_.rc_.new_command() || new_command_)
   {
     // Read RC
     interpret_rc();
